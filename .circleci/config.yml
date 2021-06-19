@@ -113,10 +113,9 @@ workflows:
       - deploy-to-asw-cloudfront:
           require:
             - deploy-to-asw-s3
-            filters:
-              branches:
-                only:
-                  - develop
-                  - staging
-                  - master
-
+          filters:
+            branches:
+              only:
+                - develop
+                - staging
+                - master
