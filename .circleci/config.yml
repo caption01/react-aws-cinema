@@ -9,7 +9,7 @@ jobs:
       - checkout # checkout to target branch
       - run:
           name: Show Current Branch
-          command: echo ${CURRENT_BRANCH}
+          command: echo ${CIRCLE_BRANCH}
       - restore_cache: # check if have cache try to restore
           keys:
             - app-{{ checksum "package.json"}}
@@ -30,13 +30,13 @@ jobs:
       - checkout # checkout to target branch
       - run:
           name: Show Current Branch
-          command: echo ${CURRENT_BRANCH}
+          command: echo ${CIRCLE_BRANCH}
       - run: # install aws cli
           name: Installing AWS CLI
           working_directory: /
           command: |
             sudo apt-get -y -qq update
-            sudo apt-get- install -y awscli
+            sudo apt-get install -y awscli
             sudo apt-get install -y python-pip python-dev build-essential
       - run:
           name: Build Project
@@ -49,13 +49,13 @@ jobs:
       - run:
           name: Deploy to AWS-S3
           command: |
-            if [ "${CURRENT_BRANCH}" == "master" ]
+            if [ "${CIRCLE_BRANCH}" == "master" ]
             then 
               aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_PRODUCTION} --delete
-            elif [ "${CURRENT_BRANCH}" == "staging" ]
+            elif [ "${CIRCLE_BRANCH}" == "staging" ]
             then
               aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_STAGGING} --delete
-            else [ "${CURRENT_BRANCH}" == "staging" ]
+            else
               aws --region ${AWS_REGION} s3 sync ~/repo/build s3://${AWS_BUCKET_DEV} --delete
             fi
 
@@ -67,13 +67,13 @@ jobs:
       - checkout # checkout to target branch
       - run:
           name: Show Current Branch
-          command: echo ${CURRENT_BRANCH}
+          command: echo ${CIRCLE_BRANCH}
       - run: # install aws cli
           name: Installing AWS CLI
           working_directory: /
           command: |
             sudo apt-get -y -qq update
-            sudo apt-get- install -y awscli
+            sudo apt-get install -y awscli
             sudo apt-get install -y python-pip python-dev build-essential
       - run:
           name: Build Project
@@ -86,14 +86,14 @@ jobs:
       - run:
           name: Deploy to AWS-Cloudfront
           command: |
-            aws configure set preview.cloudfront
-            if [ "${CURRENT_BRANCH}" == "master" ]
+            aws configure set preview.cloudfront true
+            if [ "${CIRCLE_BRANCH}" == "master" ]
             then 
               aws cloudfront create-invalidation --distribution-id ${AWS_DISTRIBUTION_PROD_ID} --path /\*
-            elif [ "${CURRENT_BRANCH}" == "staging" ]
+            elif [ "${CIRCLE_BRANCH}" == "staging" ]
             then
               aws cloudfront create-invalidation --distribution-id ${AWS_DISTRIBUTION_STAGGING_ID} --path /\*
-            else [ "${CURRENT_BRANCH}" == "staging" ]
+            else
               aws cloudfront create-invalidation --distribution-id ${AWS_DISTRIBUTION_DEV_ID} --path /\*
             fi
 
