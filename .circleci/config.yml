@@ -47,11 +47,21 @@ jobs:
   build:
     executor: app-executors
     steps:
-      - checkout # checkout to target branch
+      - checkout
       - *show-current-branch-name
       - *restore-cache
       - *install-dependencies
       - *save-cache
+
+  linting:
+    executor: app-executors
+    steps:
+      - checkout
+      - *show-current-branch-name
+      - *restore-cache
+      - run:
+          name: Run linting
+          command: npm run lint
 
   deploy-to-asw-s3:
     executor: app-executors
@@ -98,6 +108,15 @@ workflows:
   build_and_deploy:
     jobs:
       - build
+      - linting:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - develop
+                - staging
+                - master
       - deploy-to-asw-s3:
           requires:
             - build
