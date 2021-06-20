@@ -120,6 +120,7 @@ workflows:
       - deploy-to-asw-s3:
           requires:
             - build
+            - linting
           filters:
             branches:
               only:
